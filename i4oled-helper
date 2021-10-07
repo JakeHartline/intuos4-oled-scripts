@@ -1,0 +1,34 @@
+#!/bin/bash
+error() { printf "$1\n"; exit 0;}
+
+[ -z "$1" ] && error "Usage:
+i4oled-helper command button file
+commands:
+  set
+  clear
+  permissions
+"
+
+wacom_led=$(find /sys/devices/ -name "wacom_led") || exit
+
+clear_button(){
+	dd if=/dev/zero of="$wacom_led/button$1_rawimg" bs=1024 count=1 status=none
+}
+
+#convert_folder(){
+#}
+
+change_permissions(){
+	eval sudo chmod 666 "$wacom_led/*"
+}
+
+set_oled(){
+	cat "$2" > "$wacom_led/button$1_rawimg"
+}
+
+
+case "$1" in
+	set) set_oled "$2" "$3" ;;
+	clear) clear_button "$2" ;;
+	permissions) change_permissions ;;
+esac

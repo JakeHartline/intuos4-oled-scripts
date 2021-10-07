@@ -1,0 +1,61 @@
+#!/bin/bash
+error() { printf "%s\n" "$1"; exit 0; }
+
+convert > /dev/null || error "Error: this scipt needs imagemagick to work."
+hexdump --help > /dev/null || error "Error: this scipt needs hexdump to work."
+
+[[ -z "$1" || -z "$2" ]] && error "Converts 62x32 png to raw image ready for intous4 OLED's.
+Usage:
+gray-to-raw file-in file-out"
+
+#convert png to gray in /tmp
+tmp="/tmp/tmp.gray"
+convert "$1" -depth 4 GRAY:"$tmp" || error "Couldn't convert png to gray."
+
+#clear the output file
+printf "" > "$2" || error "Couldn't create $2."
+#or
+#dd if=/dev/null of="$2" count=0 status=none || error "Couldn't create $2."
+#or
+#>button
+
+#parse image file into an array with text representation of bytes
+bytes=()
+for each in $(hexdump -ve '1/1 "%.2X "' "$tmp")
+do
+	bytes+=( "$each" )
+done
+
+[[ ${#bytes[@]} != 1024 ]] && error "Wrong image size.
+Got ${#bytes[@]} bytes instead of 1024."
+
+
+#every other line, since we are doing 2 bytes at a time
+j=0
+while [ $j -le $((64*15)) ]
+do
+	i=$j
+	while [ $i -le $((j+31)) ]
+	do
+		og_byte="0x${bytes[i]}"
+		og_byte32="0x${bytes[$((i+32))]}"
+
+		byte_high=$(( (og_byte>>4) & 0x0F ))
+		byte_low=$(( og_byte32 & 0xF0 ))
+		byte_shifted=$(( byte_high | byte_low ))
+
+		byte_out1='\x'"$( printf '%02X' $byte_shifted )"
+
+
+		byte_high=$(( og_byte & 0x0F ))
+		byte_low=$(( (og_byte32<<4) & 0xF0 ))
+		byte_shifted=$(( byte_high | byte_low ))
+
+		byte_out2='\x'"$( printf '%02X' $byte_shifted )"
+
+		printf "%s%s""$byte_out1""$byte_out2" >> "$2"
+
+		i=$((i+1))
+	done
+	j=$((j+64))
+done
