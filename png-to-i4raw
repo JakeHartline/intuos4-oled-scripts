@@ -6,7 +6,7 @@ hexdump --help > /dev/null || error "Error: this scipt needs hexdump to work."
 
 [[ -z "$1" || -z "$2" ]] && error "Converts 62x32 png to raw image ready for intous4 OLED's.
 Usage:
-gray-to-raw file-in file-out"
+png-to-i4raw file-in file-out"
 
 #convert png to gray in /tmp
 tmp="/tmp/tmp.gray"
