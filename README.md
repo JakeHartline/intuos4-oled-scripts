@@ -3,26 +3,27 @@ This script will convert an image into special format which Linux kernel uses fo
 
 ## Dependencies
 - `ImageMagick`
-- `hexdump` (part of util-linux or busybox)
+- `hexdump` (part of `util-linux` or `busybox`)
 
 ## Usage
 - Create 64x32 png image
-- Convert
+- Convert:
  ```
  png-to-i4raw image.png output-file
 ```
-- Fix permissions
+- Fix permissions:
 
   By default writing to device files requires elevated privileges. \
   You can ether change those file permissions with `i4oled-helper permissions` or setup udev rules.
-- Send it to one of the buttons (0-7)
+- Send it to one of the buttons (0-7):
 ```
 i4oled-helper set 0 output-file
 ```
+
   Or you can pipe resulting file into one of the device files manually.
 
 
-For normal use you would want to save converted images somewhere and integrate the setup into your main tablet script. Sending already converted images should be fastest. That can be useful if you have different layouts, for example.
+For normal use you would want to save converted images somewhere and integrate the setup into your main tablet script. Sending already converted images should take least amount of time. Which is useful when switching between different layouts, for example.
 
 #### Clear button
 ```
@@ -35,8 +36,8 @@ todo
 
 
 
-## More detailed explanation
+## A bit more details
 Intuos 4 OLED screen support is in the Linux kernel, but it uses uncommon image format (interweaved, 4 bits per pixel).
-The script uses ImageMagick to convert an image to gray format, then shuffles the order of pixels.
+The script uses ImageMagick to convert an image to "gray" format, then shuffles the order of pixels.
 
-There are multiple tools to do this. This one aims to be simple, with least dependencies.
+There are already multiple tools to do this. This one aims to be simple, with least dependencies. Should be quite portable too.
